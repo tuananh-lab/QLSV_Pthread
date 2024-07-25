@@ -18,5 +18,7 @@ typedef struct {
 void input_student_data(Student *student);
 void write_student_to_file(Student *student, const char *filename);
 void read_and_print_student_data(const char *filename);
+void delete_student_data(const char *filename, const char *student_id);
+void update_student_data(const char *filename, const char *student_id, Student *new_data);
 
 #endif // STUDENT_H

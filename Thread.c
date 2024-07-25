@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 #include "Student.h"
 #include "Thread.h"
 
@@ -23,11 +24,31 @@ void* thread1_func(void* arg) {
         }
         
         // Input student data
-        input_student_data(&student);
-  
-        data_ready = 1;
+        char choice;
+        printf("Choose action (a: add, d: delete, u: update): ");
+        scanf(" %c", &choice);
+        getchar(); // Remove newline character left in buffer
+
+        if (choice == 'a') {
+            input_student_data(&student);
+            data_ready = 1;
+        } else if (choice == 'd') {
+            char id[9];
+            printf("Enter student ID to delete: ");
+            fgets(id, 9, stdin);
+            id[strcspn(id, "\n")] = '\0'; // Remove newline character
+            delete_student_data("thongtinsinhvien.txt", id);
+        } else if (choice == 'u') {
+            char id[9];
+            Student new_student;
+            printf("Enter student ID to update: ");
+            fgets(id, 9, stdin);
+            id[strcspn(id, "\n")] = '\0'; // Remove newline character
+            input_student_data(&new_student);
+            update_student_data("thongtinsinhvien.txt", id, &new_student);
+        }
+
         pthread_cond_signal(&cond1); // Signal thread 2 to write data to file
-  
         pthread_mutex_unlock(&lock);
   
         // Sleep for a short duration to simulate real-time data entry

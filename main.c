@@ -1,12 +1,13 @@
 #include <pthread.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include "Student.h"
 #include "Thread.h"
 
 // Mutex and condition variables
-pthread_mutex_t lock;
-pthread_cond_t cond1;
-pthread_cond_t cond2;
-
+pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t cond1 = PTHREAD_COND_INITIALIZER;
+pthread_cond_t cond2 = PTHREAD_COND_INITIALIZER;
 // Flags to control thread synchronization
 int data_ready = 0;
 int file_written = 0;
