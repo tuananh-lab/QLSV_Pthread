@@ -1,7 +1,7 @@
 # QLSV_Pthread
-## Add delete and update student data
+## Add delete and update student data                                            OK
 
-## Add manage student by ID(MSSV), major, class, address, phone
+## Add manage student by ID(MSSV), major, class, address, phone                  OK
 
 ## Add storage data by database such as: MySQL, SQLite
 
