@@ -25,7 +25,7 @@ void* thread1_func(void* arg) {
         
         // Input student data
         char choice;
-        printf("Choose action (a: add, d: delete, u: update): ");
+        printf("Choose action (a: add, d: delete, u: update, s:search): ");
         scanf(" %c", &choice);
         getchar(); // Remove newline character left in buffer
 
@@ -46,6 +46,16 @@ void* thread1_func(void* arg) {
             id[strcspn(id, "\n")] = '\0'; // Remove newline character
             input_student_data(&new_student);
             update_student_data("thongtinsinhvien.txt", id, &new_student);
+        } else if (choice == 's') {
+            char search_key[MAX_LEN];
+            char search_value[MAX_LEN];
+            printf("Enter search key (id, name, dob, hometown, phone, major, class): ");
+            fgets(search_key, MAX_LEN, stdin);
+            search_key[strcspn(search_key, "\n")] = '\0'; // Remove newline character
+            printf("Enter search value: ");
+            fgets(search_value, MAX_LEN, stdin);
+            search_value[strcspn(search_value, "\n")] = '\0'; // Remove newline character
+            search_student_data("thongtinsinhvien.txt", search_key, search_value);
         }
 
         pthread_cond_signal(&cond1); // Signal thread 2 to write data to file

@@ -133,3 +133,30 @@ void update_student_data(const char *filename, const char *student_id, Student *
         printf("Student with ID %s not found.\n", student_id);
     }
 }
+
+void search_student_data(const char *filename, const char *search_key, const char *search_value) {
+    FILE *file = fopen(filename, "r");
+    if (file == NULL) {
+        perror("Failed to open file");
+        return;
+    }
+
+    char buffer[MAX_LEN];
+    int found = 0;
+    while (fgets(buffer, MAX_LEN, file) != NULL) {
+        if (strstr(buffer, search_value) != NULL) {
+            found = 1;
+            do {
+                printf("%s", buffer);
+                fgets(buffer, MAX_LEN, file);
+            } while (strlen(buffer) > 1); // Continue reading until an empty line or EOF
+            printf("\n");
+        }
+    }
+
+    if (!found) {
+        printf("No student matching %s: %s found.\n", search_key, search_value);
+    }
+
+    fclose(file);
+}
