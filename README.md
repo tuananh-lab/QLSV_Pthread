@@ -15,7 +15,10 @@
 
 ## Notes:
 Error:
+
 Search
+
 Table Format
+
 Clear log file
 
