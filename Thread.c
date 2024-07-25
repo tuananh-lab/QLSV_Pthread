@@ -17,7 +17,6 @@ void* thread1_func(void* arg) {
     (void) arg;
     while (1) {
         pthread_mutex_lock(&lock);
-        
         // Wait for thread 3 to signal that it has finished reading and printing
         while (data_ready) {
             pthread_cond_wait(&cond2, &lock);
@@ -36,14 +35,14 @@ void* thread1_func(void* arg) {
             char id[9];
             printf("Enter student ID to delete: ");
             fgets(id, 9, stdin);
-            id[strcspn(id, "\n")] = '\0'; // Remove newline character
+            id[strcspn(id, "\n")] = '\0';
             delete_student_data("thongtinsinhvien.txt", id);
         } else if (choice == 'u') {
             char id[9];
             Student new_student;
             printf("Enter student ID to update: ");
             fgets(id, 9, stdin);
-            id[strcspn(id, "\n")] = '\0'; // Remove newline character
+            id[strcspn(id, "\n")] = '\0';
             input_student_data(&new_student);
             update_student_data("thongtinsinhvien.txt", id, &new_student);
         } else if (choice == 's') {
@@ -51,17 +50,15 @@ void* thread1_func(void* arg) {
             char search_value[MAX_LEN];
             printf("Enter search key (id, name, dob, hometown, phone, major, class): ");
             fgets(search_key, MAX_LEN, stdin);
-            search_key[strcspn(search_key, "\n")] = '\0'; // Remove newline character
+            search_key[strcspn(search_key, "\n")] = '\0';
             printf("Enter search value: ");
             fgets(search_value, MAX_LEN, stdin);
-            search_value[strcspn(search_value, "\n")] = '\0'; // Remove newline character
+            search_value[strcspn(search_value, "\n")] = '\0';
             search_student_data("thongtinsinhvien.txt", search_key, search_value);
         }
 
         pthread_cond_signal(&cond1); // Signal thread 2 to write data to file
         pthread_mutex_unlock(&lock);
-  
-        // Sleep for a short duration to simulate real-time data entry
         sleep(1);
     }
     return NULL;
@@ -71,7 +68,6 @@ void* thread2_func(void* arg) {
     (void) arg;
     while (1) {
         pthread_mutex_lock(&lock);
-        
         // Wait for thread 1 to signal that data is ready
         while (!data_ready) {
             pthread_cond_wait(&cond1, &lock);
@@ -85,8 +81,6 @@ void* thread2_func(void* arg) {
         
         data_ready = 0;
         pthread_mutex_unlock(&lock);
-        
-        // Sleep for a short duration to simulate real-time file writing
         sleep(1);
     }
     
@@ -97,7 +91,6 @@ void* thread3_func(void* arg) {
     (void) arg;
     while (1) {
         pthread_mutex_lock(&lock);
-        
         // Wait for thread 2 to signal that file is written
         while (!file_written) {
             pthread_cond_wait(&cond2, &lock);
@@ -108,10 +101,7 @@ void* thread3_func(void* arg) {
         
         file_written = 0;
         pthread_cond_signal(&cond1); // Signal thread 1 to input more data
-        
         pthread_mutex_unlock(&lock);
-        
-        // Sleep for a short duration to simulate real-time data reading
         sleep(1);
     }
     
