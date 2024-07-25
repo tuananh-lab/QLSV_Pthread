@@ -1,0 +1,16 @@
+MSSV: 20203317
+Ho ten: Tran Tuan Anh
+Ngay sinh: 11/09/2002
+Que quan: Hung Yen
+So dien thoai: 0398138259
+Nganh hoc: DTVT
+Lop: DT04-K65
+
+MSSV: 20203555
+Ho ten: Nguyen Phi San
+Ngay sinh: 18/12/2002
+Que quan: Nghe An
+So dien thoai: 0345678910
+Nganh hoc: TDH
+Lop: TDH08-K64
+
