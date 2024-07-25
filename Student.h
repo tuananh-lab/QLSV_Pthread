@@ -24,5 +24,6 @@ void update_student_data(const char *filename, const char *student_id, Student *
 void search_student_data(const char *filename, const char *search_key, const char *search_value);
 void log_change(const char *action, const Student *student);
 void display_log();
+void clear_file(const char *filename);
 
 #endif // STUDENT_H

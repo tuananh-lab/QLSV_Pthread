@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 #include "Student.h"
 
 #define LOG_FILE "change_log.txt"
@@ -11,8 +12,15 @@ void log_change(const char *action, const Student *student) {
         return;
     }
 
+    // Get the current time
+    time_t now = time(NULL);
+    struct tm *tm_info = localtime(&now);
+    char time_buffer[26];
+    strftime(time_buffer, 26, "%Y-%m-%d %H:%M:%S", tm_info);
+
+    // Write the log entry
     fprintf(log, "+---------------------+------------------------------+\n");
-    fprintf(log, "| Field               | Value                        |\n");
+    fprintf(log, "| Timestamp           | %-28s |\n", time_buffer);
     fprintf(log, "+---------------------+------------------------------+\n");
     fprintf(log, "| Action              | %-28s |\n", action);
     fprintf(log, "| ID                  | %-28s |\n", student->id);
