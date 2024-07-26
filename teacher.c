@@ -29,7 +29,15 @@ void input_student_data(Student *student) {
     log_change("Added", student);
 }
 
+
 void write_student_to_file(Student *student, const char *filename) {
+    // Check if student already exists in the file
+    if (is_student_exists(filename, student)) {
+        printf("Student with the same data already exists. No changes made.\n");
+        return;
+    }
+
+    // Open file for appending
     FILE *file = fopen(filename, "a");
     if (file == NULL) {
         perror("Failed to open file");
@@ -228,3 +236,4 @@ void clear_file(const char *filename) {
     fclose(file);
     printf("The file %s has been cleared.\n", filename);
 }
+

@@ -18,5 +18,7 @@ typedef struct {
 // Function prototypes
 void read_and_print_student_data(const char *filename);
 void search_student_data(const char *filename, const char *search_key, const char *search_value);
-
+int is_student_exists(const char *filename, const Student *new_student);
+char* trim_whitespace(char* str);
+void overwrite_student_data(const char *filename, const Student *new_student);
 #endif // STUDENT_H

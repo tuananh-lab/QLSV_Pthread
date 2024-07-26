@@ -15,22 +15,23 @@ extern Student student;
 
 void* thread1_func(void* arg) {
     char* role = (char*)arg;
+    Student student; // Định nghĩa biến student để lưu thông tin nhập
 
     while (1) {
         pthread_mutex_lock(&lock);
 
-        // Wait for thread 2 to signal that data is ready
         while (data_ready) {
             pthread_cond_wait(&cond2, &lock);
         }
 
         char choice;
         char filename[MAX_LEN] = "thongtinsinhvien.txt";
+
         if (strcmp(role, "student") == 0) {
             printf("Student actions:\n");
             printf("Choose action (s: SEARCH, l: LOG): ");
             scanf(" %c", &choice);
-            getchar(); // Remove newline character left in buffer
+            getchar();
 
             switch (choice) {
                 case 's': {
@@ -38,10 +39,10 @@ void* thread1_func(void* arg) {
                     char search_value[MAX_LEN];
                     printf("Enter search key (MSSV, NAME, DOB, HOMETOWN, PHONE, MAJOR, CLASS): ");
                     fgets(search_key, MAX_LEN, stdin);
-                    search_key[strcspn(search_key, "\n")] = '\0'; // Remove newline
+                    search_key[strcspn(search_key, "\n")] = '\0';
                     printf("Enter search value: ");
                     fgets(search_value, MAX_LEN, stdin);
-                    search_value[strcspn(search_value, "\n")] = '\0'; // Remove newline
+                    search_value[strcspn(search_value, "\n")] = '\0';
                     search_student_data(filename, search_key, search_value);
                     break;
                 }
@@ -62,14 +63,52 @@ void* thread1_func(void* arg) {
             switch (choice) {
                 case 'a': {
                     input_student_data(&student);
-                    data_ready = 1;
+
+                    if (is_student_exists(filename, &student)) {
+                        printf("Student with ID %s already exists. Do you want to overwrite it? (y/n): ", student.id);
+                        char overwrite;
+                        scanf(" %c", &overwrite);
+                        getchar(); // Remove newline character left in buffer
+                        if (overwrite == 'y' || overwrite == 'Y') {
+                            // Unlock mutex before calling overwrite function
+                            pthread_mutex_unlock(&lock);
+
+                            // Call overwrite function to handle the update
+                            overwrite_student_data(filename, &student);
+
+                            // Lock mutex again after updating
+                            pthread_mutex_lock(&lock);
+                            data_ready = 1;
+                        } else {
+                            printf("Student data not added.\n");
+                            // Reset data_ready to allow further actions
+                            data_ready = 0;
+                        }
+                    } else {
+                        // Unlock mutex before adding new student data
+                        pthread_mutex_unlock(&lock);
+
+                        // Add new student data
+                        FILE *file = fopen(filename, "a");
+                        if (file != NULL) {
+                            fprintf(file, "| %-8s | %-16s | %-10s | %-10s | %-13s | %-10s | %-10s |\n",
+                                    student.id, student.name, student.dob, student.hometown,
+                                    student.phone, student.major, student.class_t);
+                            fprintf(file, "+----------+------------------+------------+------------+---------------+------------+------------+\n");
+                            fclose(file);
+                        }
+
+                        // Lock mutex again after adding
+                        pthread_mutex_lock(&lock);
+                        data_ready = 1;
+                    }
                     break;
                 }
                 case 'd': {
                     char id[9];
                     printf("Enter student ID (MSSV) to delete: ");
-                    fgets(id, sizeof(id), stdin);
-                    id[strcspn(id, "\n")] = '\0'; // Remove newline
+                    fgets(id, 9, stdin);
+                    id[strcspn(id, "\n")] = '\0';
                     delete_student_data(filename, id);
                     break;
                 }
@@ -77,8 +116,8 @@ void* thread1_func(void* arg) {
                     char id[9];
                     Student new_student;
                     printf("Enter student ID (MSSV) to update: ");
-                    fgets(id, sizeof(id), stdin);
-                    id[strcspn(id, "\n")] = '\0'; // Remove newline
+                    fgets(id, 9, stdin);
+                    id[strcspn(id, "\n")] = '\0';
                     input_student_data(&new_student);
                     update_student_data(filename, id, &new_student);
                     break;
@@ -88,10 +127,10 @@ void* thread1_func(void* arg) {
                     char search_value[MAX_LEN];
                     printf("Enter search key (MSSV, NAME, DOB, HOMETOWN, PHONE, MAJOR, CLASS): ");
                     fgets(search_key, MAX_LEN, stdin);
-                    search_key[strcspn(search_key, "\n")] = '\0'; // Remove newline
+                    search_key[strcspn(search_key, "\n")] = '\0';
                     printf("Enter search value: ");
                     fgets(search_value, MAX_LEN, stdin);
-                    search_value[strcspn(search_value, "\n")] = '\0'; // Remove newline
+                    search_value[strcspn(search_value, "\n")] = '\0';
                     search_student_data(filename, search_key, search_value);
                     break;
                 }
@@ -111,11 +150,11 @@ void* thread1_func(void* arg) {
             printf("Invalid role.\n");
         }
 
-        pthread_cond_signal(&cond1); // Signal thread 2 to write data to file
+        pthread_cond_signal(&cond1);
         pthread_mutex_unlock(&lock);
         sleep(1);
     }
-    free(role); // Free the memory allocated for role
+    free(role);
     return NULL;
 }
 
