@@ -1,7 +1,7 @@
 # QLSV_Pthread                                         
 ## Descriptions:
-## Program using multithread manage list of student with student data such as: MSSV(ID), DOB(Date of birth), Name, Hometown, Major, Phone, Class.
-## Program include add, delete, update, search data and log with realtime.
+Program using multithread manage list of student with student data such as: MSSV(ID), DOB(Date of birth), Name, Hometown, Major, Phone, Class.
+Program include add, delete, update, search data and get log with realtime.
 
 ## Notes:Future features
 ```
