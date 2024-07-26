@@ -1,7 +1,7 @@
 #ifndef STUDENT_H
 #define STUDENT_H
 
-#define MAX_LEN 100
+#define MAX_LEN 256
 #define FILENAME "thongtinsinhvien.txt"
 
 // Struct to hold student information
@@ -25,6 +25,6 @@ void search_student_data(const char *filename, const char *search_key, const cha
 void log_change(const char *action, const Student *student);
 void display_log();
 void clear_file(const char *filename);
-void clear_log(const char *filename);
+void clear_log(void);
 
 #endif // STUDENT_H

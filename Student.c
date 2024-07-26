@@ -1,9 +1,11 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include <time.h>
 #include "Student.h"
 
 #define LOG_FILE "change_log.txt"
+#define MAX_LEN 256
 
 void log_change(const char *action, const Student *student) {
     FILE *log = fopen(LOG_FILE, "a");
@@ -35,8 +37,6 @@ void log_change(const char *action, const Student *student) {
     fclose(log);
 }
 
-
-
 void display_log() {
     FILE *log = fopen(LOG_FILE, "r");
     if (log == NULL) {
@@ -45,22 +45,51 @@ void display_log() {
     }
 
     char buffer[MAX_LEN];
-
+    int is_header = 1;  // Flag to determine if the header has been printed
+    int has_data = 0;
+    
     // Print table header
     printf("+---------------------+----------+----------+-----------------+------------+------------+---------------+------------+----------+\n");
     printf("| Timestamp           | Action   | MSSV     | Ho ten          | Ngay sinh  | Que quan   | So dien thoai | Nganh hoc  | Lop      |\n");
     printf("+---------------------+----------+----------+-----------------+------------+------------+---------------+------------+----------+\n");
 
     while (fgets(buffer, MAX_LEN, log) != NULL) {
-        printf("%s", buffer);
+        // Check if there is any data line
+        if (strstr(buffer, "Timestamp") == NULL &&
+            strstr(buffer, "Action") == NULL &&
+            strstr(buffer, "MSSV") == NULL &&
+            strstr(buffer, "Ho ten") == NULL &&
+            strstr(buffer, "Ngay sinh") == NULL &&
+            strstr(buffer, "Que quan") == NULL &&
+            strstr(buffer, "So dien thoai") == NULL &&
+            strstr(buffer, "Nganh hoc") == NULL &&
+            strstr(buffer, "Lop") == NULL) {
+            has_data = 1;
+        }
+
+        // Print the log content
+        if (strstr(buffer, "+---------------------+----------+----------+-----------------+------------+------------+---------------+------------+----------+") != NULL) {
+            if (is_header) {
+                printf("%s", buffer);
+                is_header = 0;
+            }
+        } else {
+            printf("%s", buffer);
+        }
+    }
+
+    // Print footer only if there was any data
+    if (has_data) {
+        printf("+---------------------+----------+----------+-----------------+------------+------------+---------------+------------+----------+\n");
+    } else {
+        // Print table footer if there is no data
+        printf("+---------------------+----------+----------+-----------------+------------+------------+---------------+------------+----------+\n");
     }
 
     fclose(log);
 }
 
-
-
-void clear_log(const char *filename) {
+void clear_log(void) {
     FILE *log = fopen(LOG_FILE, "w");
     if (log == NULL) {
         perror("Failed to clear log file");
@@ -80,14 +109,13 @@ void input_student_data(Student *student) {
     printf("Nhap thong tin sinh vien:\n");
 
     read_string("MSSV (8 chu so): ", student->id, 9);
-    getchar();
     read_string("Ho ten: ", student->name, MAX_LEN);
     read_string("Ngay sinh: ", student->dob, MAX_LEN);
     read_string("Que quan: ", student->hometown, MAX_LEN);
     read_string("So dien thoai: ", student->phone, MAX_LEN);
     read_string("Nganh hoc: ", student->major, MAX_LEN);
     read_string("Lop: ", student->class_t, MAX_LEN);
-        
+
     // Log the addition
     log_change("Added", student);
 }
@@ -103,12 +131,12 @@ void write_student_to_file(Student *student, const char *filename) {
     fseek(file, 0, SEEK_END);
     if (ftell(file) == 0) {
         fprintf(file, "+----------+-----------------+------------+------------+---------------+------------+----------+\n");
-        fprintf(file, "| MSSV     | Ho ten          | Ngay sinh  | Que quan   | So dien thoai | Nganh hoc  | Lop      |\n");
+        fprintf(file, "|   MSSV   |     Ho ten      |  Ngay sinh |  Que quan  | So dien thoai | Nganh hoc  |    Lop   |\n");
         fprintf(file, "+----------+-----------------+------------+------------+---------------+------------+----------+\n");
     }
 
     // Write student data
-    fprintf(file, "| %-8s | %-15s | %-10s | %-10s | %-13s | %-10s | %-8s |\n", 
+    fprintf(file, "| %-8s | %-15s | %-10s | %-10s | %-13s | %-10s | %-10s |\n", 
             student->id, student->name, student->dob, student->hometown, 
             student->phone, student->major, student->class_t);
     fprintf(file, "+----------+-----------------+------------+------------+---------------+------------+----------+\n");
@@ -124,15 +152,22 @@ void read_and_print_student_data(const char *filename) {
     }
 
     char buffer[MAX_LEN];
-    
+    int is_header = 1;  // Flag to determine if the header has been printed
+
     while (fgets(buffer, MAX_LEN, file) != NULL) {
-        printf("%s", buffer);
+        // Print the header only once at the beginning of the file
+        if (strstr(buffer, "+----------+-----------------+------------+------------+---------------+------------+----------+") != NULL) {
+            if (is_header) {
+                printf("%s", buffer);
+                is_header = 0;
+            }
+        } else {
+            printf("%s", buffer);
+        }
     }
 
     fclose(file);
 }
-
-
 
 void delete_student_data(const char *filename, const char *student_id) {
     FILE *file = fopen(filename, "r");
@@ -201,8 +236,9 @@ void update_student_data(const char *filename, const char *student_id, Student *
         if (strstr(buffer, student_id) != NULL) {
             // Write new student data to the temp file
             found = 1;
-            fprintf(temp, "MSSV: %s\nHo ten: %s\nNgay sinh: %s\nQue quan: %s\nSo dien thoai: %s\nNganh hoc: %s\nTuoi: %s\nLop: %s\n\n",
-                    new_data->id, new_data->name, new_data->dob, new_data->hometown, new_data->phone, new_data->major, new_data->class_t);
+            fprintf(temp, "| %-8s | %-15s | %-10s | %-10s | %-13s | %-10s | %-10s |\n",
+                    new_data->id, new_data->name, new_data->dob, new_data->hometown, 
+                    new_data->phone, new_data->major, new_data->class_t);
             // Skip old student data in the original file
             for (int i = 0; i < 8; i++) {
                 fgets(buffer, MAX_LEN, file);
@@ -235,53 +271,45 @@ void search_student_data(const char *filename, const char *search_key, const cha
         return;
     }
 
+    // Display search options
+    printf("Searching by: %s\n", search_key);
+
     char buffer[MAX_LEN];
-    int in_record = 0;
     int record_found = 0;
 
-    printf("+-----------------+----------------------------------+\n");
-    printf("| Field           | Value                            |\n");
-    printf("+-----------------+----------------------------------+\n");
+    // Print table header
+    printf("+----------+-----------------+------------+------------+---------------+------------+----------+\n");
+    printf("| MSSV     | Ho ten          | Ngay sinh  | Que quan   | So dien thoai | Nganh hoc  | Lop      |\n");
+    printf("+----------+-----------------+------------+------------+---------------+------------+----------+\n");
 
     while (fgets(buffer, MAX_LEN, file) != NULL) {
-        // Check if this line contains the search value
-        if (strstr(buffer, search_value) != NULL) {
-            in_record = 1;  // Start printing the record
-            record_found = 1;
+        // Skip header and separator lines
+        if (strstr(buffer, "+----------+-----------------+------------+------------+---------------+------------+----------+") != NULL) {
+            continue;
         }
 
-        if (in_record) {
-            // Print the line of the record
-            if (strstr(buffer, "MSSV:") || strstr(buffer, "Ho ten:") ||
-                strstr(buffer, "Ngay sinh:") || strstr(buffer, "Que quan:") ||
-                strstr(buffer, "So dien thoai:") || strstr(buffer, "Nganh hoc:") ||
-                strstr(buffer, "Lop:")) {
-                // Print the field and value in table format
-                char *field = strtok(buffer, ":");
-                char *value = strtok(NULL, "\n");
-
-                if (field && value) {
-                    printf("| %-17s | %-32s |\n", field, value);
-                }
-            }
-
-            // End of a record (checking for end of record delimiter)
-            if (strstr(buffer, "+-----------------+----------------------------------+") != NULL) {
-                printf("%s", buffer);
-                in_record = 0;
-                continue;
-            }
+        // Check if this line contains the search value
+        if (strstr(buffer, search_value) != NULL) {
+            // Read the student data from the file and display it in table format
+            Student student;
+            sscanf(buffer, "| %8s | %15[^|] | %10[^|] | %10[^|] | %13[^|] | %10[^|] | %10[^|] |",
+                   student.id, student.name, student.dob, student.hometown,
+                   student.phone, student.major, student.class_t);
+            printf("| %-8s | %-15s | %-10s | %-10s | %-13s | %-10s | %-10s |\n",
+                   student.id, student.name, student.dob, student.hometown,
+                   student.phone, student.major, student.class_t);
+            printf("+----------+-----------------+------------+------------+---------------+------------+----------+\n");
+            record_found = 1;
         }
     }
 
     if (!record_found) {
-        printf("No student matching %s: %s found.\n", search_key, search_value);
-    } else {
-        printf("+-----------------+----------------------------------+\n");
+        printf("No records found for the given search criteria.\n");
     }
 
     fclose(file);
 }
+
 
 void clear_file(const char *filename) {
     FILE *file = fopen(filename, "w");
@@ -292,6 +320,3 @@ void clear_file(const char *filename) {
     fclose(file);
     printf("The file %s has been cleared.\n", filename);
 }
-
-
-

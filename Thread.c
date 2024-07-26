@@ -25,7 +25,7 @@ void* thread1_func(void* arg) {
         // Input student data
         char choice;
         char filename[MAX_LEN] = "thongtinsinhvien.txt";
-        printf("Choose action (a: ADD, d: DELETE, u: UPDATE, s:SEARCH, l:LOG, c:CLEAR, cl:CLEAR_LOG): ");
+        printf("Choose action (a: ADD, d: DELETE, u: UPDATE, s:SEARCH, l:LOG, c:CLEAR): ");
         scanf(" %c", &choice);
         getchar(); // Remove newline character left in buffer
 
@@ -56,7 +56,7 @@ void* thread1_func(void* arg) {
             case 's': {
                 char search_key[MAX_LEN];
                 char search_value[MAX_LEN];
-                printf("Enter search key (id, name, dob, hometown, phone, major, class): ");
+                printf("Enter search key (MSSV, NAME, DOB, HOMETOWN, PHONE, MAJOR, CLASS): ");
                 fgets(search_key, MAX_LEN, stdin);
                 search_key[strcspn(search_key, "\n")] = '\0';
                 printf("Enter search value: ");
@@ -69,9 +69,6 @@ void* thread1_func(void* arg) {
                 display_log();
                 break;
             }
-            case 'cl':
-                clear_log(filename);
-                break;
             case 'c':
                 clear_file(filename);
                 break;
