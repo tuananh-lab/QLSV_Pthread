@@ -17,7 +17,7 @@ void display_student_data(const char *filename) {
     int is_header = 1;
 
     while (fgets(buffer, MAX_LEN, file) != NULL) {
-        if (strstr(buffer, "+----------+-----------------+------------+------------+---------------+------------+------------+") != NULL) {
+        if (strstr(buffer, "+----------+------------------+------------+------------+---------------+------------+------------+") != NULL) {
             if (is_header) {
                 printf("%s", buffer);
                 is_header = 0;
@@ -42,20 +42,20 @@ void search_student_data(const char *filename, const char *search_key, const cha
     char buffer[MAX_LEN];
     int record_found = 0;
 
-    printf("+----------+-----------------+------------+------------+---------------+------------+------------+\n");
-    printf("| MSSV     | Ho ten          | Ngay sinh  | Que quan   | So dien thoai | Nganh hoc  | Lop        |\n");
-    printf("+----------+-----------------+------------+------------+---------------+------------+------------+\n");
+    printf("+----------+------------------+------------+------------+---------------+------------+------------+\n");
+    printf("| MSSV     | Ho ten           | Ngay sinh  | Que quan   | So dien thoai | Nganh hoc  | Lop        |\n");
+    printf("+----------+------------------+------------+------------+---------------+------------+------------+\n");
 
     while (fgets(buffer, MAX_LEN, file) != NULL) {
         if (strstr(buffer, search_value) != NULL) {
             Student student;
-            sscanf(buffer, "| %8s | %15[^|] | %10[^|] | %10[^|] | %13[^|] | %10[^|] | %10[^|] |",
+            sscanf(buffer, "| %8s | %16[^|] | %10[^|] | %10[^|] | %13[^|] | %10[^|] | %10[^|] |",
                    student.id, student.name, student.dob, student.hometown,
                    student.phone, student.major, student.class_t);
-            printf("| %-8s | %-15s | %-10s | %-10s | %-13s | %-10s | %-10s |\n",
+            printf("| %-8s | %-16s | %-10s | %-10s | %-13s | %-10s | %-10s |\n",
                    student.id, student.name, student.dob, student.hometown,
                    student.phone, student.major, student.class_t);
-            printf("+----------+-----------------+------------+------------+---------------+------------+------------+\n");
+            printf("+----------+------------------+------------+------------+---------------+------------+------------+\n");
             record_found = 1;
         }
     }

@@ -39,16 +39,16 @@ void write_student_to_file(Student *student, const char *filename) {
     // Print table headers only if the file is empty
     fseek(file, 0, SEEK_END);
     if (ftell(file) == 0) {
-        fprintf(file, "+----------+-----------------+------------+------------+---------------+------------+------------+\n");
-        fprintf(file, "|   MSSV   |     Ho ten      |  Ngay sinh |  Que quan  | So dien thoai | Nganh hoc  |    Lop     |\n");
-        fprintf(file, "+----------+-----------------+------------+------------+---------------+------------+------------+\n");
+        fprintf(file, "+----------+------------------+------------+------------+---------------+------------+------------+\n");
+        fprintf(file, "|   MSSV   |     Ho ten       |  Ngay sinh |  Que quan  | So dien thoai | Nganh hoc  |    Lop     |\n");
+        fprintf(file, "+----------+------------------+------------+------------+---------------+------------+------------+\n");
     }
 
     // Write student data
-    fprintf(file, "| %-8s | %-15s | %-10s | %-10s | %-13s | %-10s | %-10s |\n", 
+    fprintf(file, "| %-8s | %-16s | %-10s | %-10s | %-13s | %-10s | %-10s |\n", 
             student->id, student->name, student->dob, student->hometown, 
             student->phone, student->major, student->class_t);
-    fprintf(file, "+----------+-----------------+------------+------------+---------------+------------+------------+\n");
+    fprintf(file, "+----------+------------------+------------+------------+---------------+------------+------------+\n");
 
     fclose(file);
 }
@@ -65,7 +65,7 @@ void read_and_print_student_data(const char *filename) {
 
     while (fgets(buffer, MAX_LEN, file) != NULL) {
         // Print the header only once at the beginning of the file
-        if (strstr(buffer, "+----------+-----------------+------------+------------+---------------+------------+------------+") != NULL) {
+        if (strstr(buffer, "+----------+------------------+------------+------------+---------------+------------+------------+") != NULL) {
             if (is_header) {
                 printf("%s", buffer);
                 is_header = 0;
@@ -145,7 +145,7 @@ void update_student_data(const char *filename, const char *student_id, Student *
         if (strstr(buffer, student_id) != NULL) {
             // Write new student data to the temp file
             found = 1;
-            fprintf(temp, "| %-8s | %-15s | %-10s | %-10s | %-13s | %-10s | %-10s |\n",
+            fprintf(temp, "| %-8s | %-16s | %-10s | %-10s | %-13s | %-10s | %-10s |\n",
                     new_data->id, new_data->name, new_data->dob, new_data->hometown, 
                     new_data->phone, new_data->major, new_data->class_t);
             // Skip old student data in the original file
