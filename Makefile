@@ -1,4 +1,3 @@
-
 # Compiler
 CC = gcc
 
@@ -9,13 +8,13 @@ CFLAGS = -Wall -Wextra -pthread
 TARGET = student_app
 
 # Source files
-SRCS = main.c Student.c Thread.c
+SRCS = main.c student.c teacher.c thread.c log.c login.c
 
 # Object files
 OBJS = $(SRCS:.c=.o)
 
 # Header files
-HEADERS = Student.h Thread.h
+HEADERS = student.h teacher.h thread.h log.h login.h
 
 # Default target
 all: $(TARGET)
@@ -34,5 +33,3 @@ clean:
 
 # Phony targets
 .PHONY: all clean
-
-
