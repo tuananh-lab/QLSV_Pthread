@@ -18,23 +18,24 @@ void log_change(const char *action, const Student *student) {
     char time_buffer[26];
     strftime(time_buffer, 26, "%Y-%m-%d %H:%M:%S", tm_info);
 
+    // Print table headers only if the file is empty
+    fseek(log, 0, SEEK_END);
+    if (ftell(log) == 0) {
+        fprintf(log, "+---------------------+----------+----------+-----------------+------------+------------+---------------+------------+----------+\n");
+        fprintf(log, "| Timestamp           | Action   | MSSV     | Ho ten          | Ngay sinh  | Que quan   | So dien thoai | Nganh hoc  | Lop      |\n");
+        fprintf(log, "+---------------------+----------+----------+-----------------+------------+------------+---------------+------------+----------+\n");
+    }
+
     // Write the log entry
-    fprintf(log, "+---------------------+------------------------------+\n");
-    fprintf(log, "| Timestamp           | %-28s |\n", time_buffer);
-    fprintf(log, "+---------------------+------------------------------+\n");
-    fprintf(log, "| Action              | %-28s |\n", action);
-    fprintf(log, "| ID                  | %-28s |\n", student->id);
-    fprintf(log, "| Name                | %-28s |\n", student->name);
-    fprintf(log, "| Date of Birth       | %-28s |\n", student->dob);
-    fprintf(log, "| Hometown            | %-28s |\n", student->hometown);
-    fprintf(log, "| Phone               | %-28s |\n", student->phone);
-    fprintf(log, "| Major               | %-28s |\n", student->major);
-    fprintf(log, "| Class               | %-28s |\n", student->class_t);
-    fprintf(log, "+---------------------+------------------------------+\n");
-    fprintf(log, "\n");
+    fprintf(log, "| %-19s | %-8s | %-8s | %-15s | %-10s | %-10s | %-13s | %-10s | %-8s |\n",
+            time_buffer, action, student->id, student->name, student->dob,
+            student->hometown, student->phone, student->major, student->class_t);
+    fprintf(log, "+---------------------+----------+----------+-----------------+------------+------------+---------------+------------+----------+\n");
 
     fclose(log);
 }
+
+
 
 void display_log() {
     FILE *log = fopen(LOG_FILE, "r");
@@ -44,10 +45,27 @@ void display_log() {
     }
 
     char buffer[MAX_LEN];
+
+    // Print table header
+    printf("+---------------------+----------+----------+-----------------+------------+------------+---------------+------------+----------+\n");
+    printf("| Timestamp           | Action   | MSSV     | Ho ten          | Ngay sinh  | Que quan   | So dien thoai | Nganh hoc  | Lop      |\n");
+    printf("+---------------------+----------+----------+-----------------+------------+------------+---------------+------------+----------+\n");
+
     while (fgets(buffer, MAX_LEN, log) != NULL) {
         printf("%s", buffer);
     }
 
+    fclose(log);
+}
+
+
+
+void clear_log(const char *filename) {
+    FILE *log = fopen(LOG_FILE, "w");
+    if (log == NULL) {
+        perror("Failed to clear log file");
+        return;
+    }
     fclose(log);
 }
 
@@ -81,19 +99,20 @@ void write_student_to_file(Student *student, const char *filename) {
         return;
     }
 
-    // Viết dữ liệu sinh viên theo định dạng bảng
-    fprintf(file, "+-----------------+----------------------------------+\n");
-    fprintf(file, "| Field           | Value                            |\n");
-    fprintf(file, "+-----------------+----------------------------------+\n");
-    fprintf(file, "| MSSV            | %-32s |\n", student->id);
-    fprintf(file, "| Ho ten          | %-32s |\n", student->name);
-    fprintf(file, "| Ngay sinh       | %-32s |\n", student->dob);
-    fprintf(file, "| Que quan        | %-32s |\n", student->hometown);
-    fprintf(file, "| So dien thoai   | %-32s |\n", student->phone);
-    fprintf(file, "| Nganh hoc       | %-32s |\n", student->major);
-    fprintf(file, "| Lop             | %-32s |\n", student->class_t);
-    fprintf(file, "+-----------------+----------------------------------+\n\n");
-    
+    // Print table headers only if the file is empty
+    fseek(file, 0, SEEK_END);
+    if (ftell(file) == 0) {
+        fprintf(file, "+----------+-----------------+------------+------------+---------------+------------+----------+\n");
+        fprintf(file, "| MSSV     | Ho ten          | Ngay sinh  | Que quan   | So dien thoai | Nganh hoc  | Lop      |\n");
+        fprintf(file, "+----------+-----------------+------------+------------+---------------+------------+----------+\n");
+    }
+
+    // Write student data
+    fprintf(file, "| %-8s | %-15s | %-10s | %-10s | %-13s | %-10s | %-8s |\n", 
+            student->id, student->name, student->dob, student->hometown, 
+            student->phone, student->major, student->class_t);
+    fprintf(file, "+----------+-----------------+------------+------------+---------------+------------+----------+\n");
+
     fclose(file);
 }
 
@@ -105,49 +124,14 @@ void read_and_print_student_data(const char *filename) {
     }
 
     char buffer[MAX_LEN];
-    int is_new_student = 1; // Flag to indicate the start of a new student
-
+    
     while (fgets(buffer, MAX_LEN, file) != NULL) {
-        // Check for start of a new student's data
-        if (strstr(buffer, "+-----------------+----------------------------------+") != NULL) {
-            if (!is_new_student) {
-                // Print end of table and a separator between students
-                printf("+-----------------+----------------------------------+\n\n");
-            }
-            printf("+-----------------+----------------------------------+\n");
-            printf("| Field           | Value                            |\n");
-            printf("+-----------------+----------------------------------+\n");
-            is_new_student = 1;
-        } else if (strstr(buffer, "MSSV:") != NULL) {
-            printf("| MSSV            | %-32s |\n", buffer + 5);
-        } else if (strstr(buffer, "Ho ten:") != NULL) {
-            printf("| Ho ten          | %-32s |\n", buffer + 8);
-        } else if (strstr(buffer, "Ngay sinh:") != NULL) {
-            printf("| Ngay sinh       | %-32s |\n", buffer + 11);
-        } else if (strstr(buffer, "Que quan:") != NULL) {
-            printf("| Que quan        | %-32s |\n", buffer + 10);
-        } else if (strstr(buffer, "So dien thoai:") != NULL) {
-            printf("| So dien thoai   | %-32s |\n", buffer + 15);
-        } else if (strstr(buffer, "Nganh hoc:") != NULL) {
-            printf("| Nganh hoc       | %-32s |\n", buffer + 11);
-        } else if (strstr(buffer, "Lop:") != NULL) {
-            printf("| Lop             | %-32s |\n", buffer + 5);
-        } else if (strstr(buffer, "+-----------------+----------------------------------+") != NULL) {
-            printf("%s", buffer);
-            is_new_student = 0;
-        } else {
-            // Print any other lines that are not part of the table
-            printf("%s", buffer);
-        }
-    }
-
-    // Print the last table's end if necessary
-    if (!is_new_student) {
-        printf("+-----------------+----------------------------------+\n");
+        printf("%s", buffer);
     }
 
     fclose(file);
 }
+
 
 
 void delete_student_data(const char *filename, const char *student_id) {

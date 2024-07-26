@@ -25,7 +25,7 @@ void* thread1_func(void* arg) {
         // Input student data
         char choice;
         char filename[MAX_LEN] = "thongtinsinhvien.txt";
-        printf("Choose action (a: ADD, d: DELETE, u: UPDATE, s:SEARCH, l:LOG, c:CLEAR): ");
+        printf("Choose action (a: ADD, d: DELETE, u: UPDATE, s:SEARCH, l:LOG, c:CLEAR, cl:CLEAR_LOG): ");
         scanf(" %c", &choice);
         getchar(); // Remove newline character left in buffer
 
@@ -69,7 +69,10 @@ void* thread1_func(void* arg) {
                 display_log();
                 break;
             }
-            case 'c':  // Clear file
+            case 'cl':
+                clear_log(filename);
+                break;
+            case 'c':
                 clear_file(filename);
                 break;
             default:
