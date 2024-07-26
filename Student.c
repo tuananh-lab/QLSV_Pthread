@@ -23,16 +23,16 @@ void log_change(const char *action, const Student *student) {
     // Print table headers only if the file is empty
     fseek(log, 0, SEEK_END);
     if (ftell(log) == 0) {
-        fprintf(log, "+---------------------+----------+----------+-----------------+------------+------------+---------------+------------+----------+\n");
-        fprintf(log, "| Timestamp           | Action   | MSSV     | Ho ten          | Ngay sinh  | Que quan   | So dien thoai | Nganh hoc  | Lop      |\n");
-        fprintf(log, "+---------------------+----------+----------+-----------------+------------+------------+---------------+------------+----------+\n");
+        fprintf(log, "+---------------------+----------+----------+-----------------+------------+------------+---------------+------------+------------+\n");
+        fprintf(log, "| Timestamp           | Action   | MSSV     | Ho ten          | Ngay sinh  | Que quan   | So dien thoai | Nganh hoc  | Lop        |\n");
+        fprintf(log, "+---------------------+----------+----------+-----------------+------------+------------+---------------+------------+------------+\n");
     }
 
     // Write the log entry
-    fprintf(log, "| %-19s | %-8s | %-8s | %-15s | %-10s | %-10s | %-13s | %-10s | %-8s |\n",
+    fprintf(log, "| %-19s | %-8s | %-8s | %-15s | %-10s | %-10s | %-13s | %-10s | %-10s |\n",
             time_buffer, action, student->id, student->name, student->dob,
             student->hometown, student->phone, student->major, student->class_t);
-    fprintf(log, "+---------------------+----------+----------+-----------------+------------+------------+---------------+------------+----------+\n");
+    fprintf(log, "+---------------------+----------+----------+-----------------+------------+------------+---------------+------------+------------+\n");
 
     fclose(log);
 }
@@ -49,9 +49,9 @@ void display_log() {
     int has_data = 0;
     
     // Print table header
-    printf("+---------------------+----------+----------+-----------------+------------+------------+---------------+------------+----------+\n");
-    printf("| Timestamp           | Action   | MSSV     | Ho ten          | Ngay sinh  | Que quan   | So dien thoai | Nganh hoc  | Lop      |\n");
-    printf("+---------------------+----------+----------+-----------------+------------+------------+---------------+------------+----------+\n");
+    printf("+---------------------+----------+----------+-----------------+------------+------------+---------------+------------+------------+\n");
+    printf("| Timestamp           | Action   | MSSV     | Ho ten          | Ngay sinh  | Que quan   | So dien thoai | Nganh hoc  | Lop        |\n");
+    printf("+---------------------+----------+----------+-----------------+------------+------------+---------------+------------+------------+\n");
 
     while (fgets(buffer, MAX_LEN, log) != NULL) {
         // Check if there is any data line
@@ -68,7 +68,7 @@ void display_log() {
         }
 
         // Print the log content
-        if (strstr(buffer, "+---------------------+----------+----------+-----------------+------------+------------+---------------+------------+----------+") != NULL) {
+        if (strstr(buffer, "+---------------------+----------+----------+-----------------+------------+------------+---------------+------------+------------+") != NULL) {
             if (is_header) {
                 printf("%s", buffer);
                 is_header = 0;
@@ -80,10 +80,10 @@ void display_log() {
 
     // Print footer only if there was any data
     if (has_data) {
-        printf("+---------------------+----------+----------+-----------------+------------+------------+---------------+------------+----------+\n");
+        printf("+---------------------+----------+----------+-----------------+------------+------------+---------------+------------+------------+\n");
     } else {
         // Print table footer if there is no data
-        printf("+---------------------+----------+----------+-----------------+------------+------------+---------------+------------+----------+\n");
+        printf("+---------------------+----------+----------+-----------------+------------+------------+---------------+------------+------------+\n");
     }
 
     fclose(log);
@@ -130,16 +130,16 @@ void write_student_to_file(Student *student, const char *filename) {
     // Print table headers only if the file is empty
     fseek(file, 0, SEEK_END);
     if (ftell(file) == 0) {
-        fprintf(file, "+----------+-----------------+------------+------------+---------------+------------+----------+\n");
-        fprintf(file, "|   MSSV   |     Ho ten      |  Ngay sinh |  Que quan  | So dien thoai | Nganh hoc  |    Lop   |\n");
-        fprintf(file, "+----------+-----------------+------------+------------+---------------+------------+----------+\n");
+        fprintf(file, "+----------+-----------------+------------+------------+---------------+------------+------------+\n");
+        fprintf(file, "|   MSSV   |     Ho ten      |  Ngay sinh |  Que quan  | So dien thoai | Nganh hoc  |    Lop     |\n");
+        fprintf(file, "+----------+-----------------+------------+------------+---------------+------------+------------+\n");
     }
 
     // Write student data
     fprintf(file, "| %-8s | %-15s | %-10s | %-10s | %-13s | %-10s | %-10s |\n", 
             student->id, student->name, student->dob, student->hometown, 
             student->phone, student->major, student->class_t);
-    fprintf(file, "+----------+-----------------+------------+------------+---------------+------------+----------+\n");
+    fprintf(file, "+----------+-----------------+------------+------------+---------------+------------+------------+\n");
 
     fclose(file);
 }
@@ -156,7 +156,7 @@ void read_and_print_student_data(const char *filename) {
 
     while (fgets(buffer, MAX_LEN, file) != NULL) {
         // Print the header only once at the beginning of the file
-        if (strstr(buffer, "+----------+-----------------+------------+------------+---------------+------------+----------+") != NULL) {
+        if (strstr(buffer, "+----------+-----------------+------------+------------+---------------+------------+------------+") != NULL) {
             if (is_header) {
                 printf("%s", buffer);
                 is_header = 0;
@@ -278,13 +278,13 @@ void search_student_data(const char *filename, const char *search_key, const cha
     int record_found = 0;
 
     // Print table header
-    printf("+----------+-----------------+------------+------------+---------------+------------+----------+\n");
-    printf("| MSSV     | Ho ten          | Ngay sinh  | Que quan   | So dien thoai | Nganh hoc  | Lop      |\n");
-    printf("+----------+-----------------+------------+------------+---------------+------------+----------+\n");
+    printf("+----------+-----------------+------------+------------+---------------+------------+------------+\n");
+    printf("| MSSV     | Ho ten          | Ngay sinh  | Que quan   | So dien thoai | Nganh hoc  | Lop        |\n");
+    printf("+----------+-----------------+------------+------------+---------------+------------+------------+\n");
 
     while (fgets(buffer, MAX_LEN, file) != NULL) {
         // Skip header and separator lines
-        if (strstr(buffer, "+----------+-----------------+------------+------------+---------------+------------+----------+") != NULL) {
+        if (strstr(buffer, "+----------+-----------------+------------+------------+---------------+------------+------------+") != NULL) {
             continue;
         }
 
@@ -298,7 +298,7 @@ void search_student_data(const char *filename, const char *search_key, const cha
             printf("| %-8s | %-15s | %-10s | %-10s | %-13s | %-10s | %-10s |\n",
                    student.id, student.name, student.dob, student.hometown,
                    student.phone, student.major, student.class_t);
-            printf("+----------+-----------------+------------+------------+---------------+------------+----------+\n");
+            printf("+----------+-----------------+------------+------------+---------------+------------+------------+\n");
             record_found = 1;
         }
     }
