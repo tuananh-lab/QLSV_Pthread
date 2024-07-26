@@ -37,6 +37,7 @@ void log_change(const char *action, const Student *student) {
     fclose(log);
 }
 
+
 void display_log() {
     FILE *log = fopen(LOG_FILE, "r");
     if (log == NULL) {
@@ -45,13 +46,8 @@ void display_log() {
     }
 
     char buffer[MAX_LEN];
-    int is_header = 1;  // Flag to determine if the header has been printed
+    int is_header = 1;
     int has_data = 0;
-    
-    // Print table header
-    printf("+---------------------+----------+----------+-----------------+------------+------------+---------------+------------+------------+\n");
-    printf("| Timestamp           | Action   | MSSV     | Ho ten          | Ngay sinh  | Que quan   | So dien thoai | Nganh hoc  | Lop        |\n");
-    printf("+---------------------+----------+----------+-----------------+------------+------------+---------------+------------+------------+\n");
 
     while (fgets(buffer, MAX_LEN, log) != NULL) {
         // Check if there is any data line
@@ -88,7 +84,6 @@ void display_log() {
 
     fclose(log);
 }
-
 void clear_log(void) {
     FILE *log = fopen(LOG_FILE, "w");
     if (log == NULL) {
@@ -107,8 +102,8 @@ void read_string(char *prompt, char *buffer, size_t size) {
 
 void input_student_data(Student *student) {
     printf("Nhap thong tin sinh vien:\n");
-
     read_string("MSSV (8 chu so): ", student->id, 9);
+    getchar();
     read_string("Ho ten: ", student->name, MAX_LEN);
     read_string("Ngay sinh: ", student->dob, MAX_LEN);
     read_string("Que quan: ", student->hometown, MAX_LEN);
