@@ -36,7 +36,7 @@ void* thread1_func(void* arg) {
                 break;
             case 'd':{
                 char id[9];
-                printf("Enter student ID to delete: ");
+                printf("Enter student ID (MSSV) to delete: ");
                 fgets(id, 9, stdin);
                 id[strcspn(id, "\n")] = '\0';
                 delete_student_data("thongtinsinhvien.txt", id);
@@ -46,7 +46,7 @@ void* thread1_func(void* arg) {
             case 'u': {
                 char id[9];
                 Student new_student;
-                printf("Enter student ID to update: ");
+                printf("Enter student ID (MSSV) to update: ");
                 fgets(id, 9, stdin);
                 id[strcspn(id, "\n")] = '\0';
                 input_student_data(&new_student);
