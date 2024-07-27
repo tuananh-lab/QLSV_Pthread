@@ -8,9 +8,6 @@ Program include add, delete, update, search data and get log with realtime.
 Add storage data by database such as: MySQL, SQLite
 ```
 ```
-Add transfer data with other format such as PDF
-```
-```
 Add share and display data over network(HTTP) and web service or using QT
 ```
 
