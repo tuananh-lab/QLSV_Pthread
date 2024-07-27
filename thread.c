@@ -15,7 +15,8 @@ extern Student student;
 
 void* thread1_func(void* arg) {
     char* role = (char*)arg;
-    Student student; // Định nghĩa biến student để lưu thông tin nhập
+    Student student;
+    char filename[MAX_LEN] = "thongtinsinhvien.txt";
 
     while (1) {
         pthread_mutex_lock(&lock);
@@ -25,13 +26,21 @@ void* thread1_func(void* arg) {
         }
 
         char choice;
-        char filename[MAX_LEN] = "thongtinsinhvien.txt";
+        int file_has_data = 0; // Biến để kiểm tra xem file có dữ liệu hay không
 
-        if (strcmp(role, "student") == 0) {
+        // Kiểm tra xem file có dữ liệu hay không
+        FILE *file_check = fopen(filename, "r");
+        if (file_check != NULL) {
+            fseek(file_check, 0, SEEK_END);
+            file_has_data = ftell(file_check) > 0; // Kiểm tra kích thước file
+            fclose(file_check);
+        }
+
+        if (strcmp(role, "1") == 0) { // Student role
             printf("Student actions:\n");
             printf("Choose action (s: SEARCH, l: LOG): ");
             scanf(" %c", &choice);
-            getchar();
+            getchar(); // Remove newline character left in buffer
 
             switch (choice) {
                 case 's': {
@@ -54,7 +63,7 @@ void* thread1_func(void* arg) {
                     printf("Invalid action.\n");
                     break;
             }
-        } else if (strcmp(role, "teacher") == 0) {
+        } else if (strcmp(role, "2") == 0) { // Teacher role
             printf("Teacher actions:\n");
             printf("Choose action (a: ADD, d: DELETE, u: UPDATE, s: SEARCH, l: LOG, c: CLEAR): ");
             scanf(" %c", &choice);
@@ -64,31 +73,40 @@ void* thread1_func(void* arg) {
                 case 'a': {
                     input_student_data(&student);
 
-                    if (is_student_exists(filename, &student)) {
-                        printf("Student with ID %s already exists. Do you want to overwrite it? (y/n): ", student.id);
-                        char overwrite;
-                        scanf(" %c", &overwrite);
-                        getchar(); // Remove newline character left in buffer
-                        if (overwrite == 'y' || overwrite == 'Y') {
-                            // Unlock mutex before calling overwrite function
+                    if (file_has_data) {
+                        if (is_student_exists(filename, &student)) {
+                            printf("Student with ID %s already exists. Do you want to overwrite it? (y/n): ", student.id);
+                            char overwrite;
+                            scanf(" %c", &overwrite);
+                            getchar(); // Remove newline character left in buffer
+
+                            if (overwrite == 'y' || overwrite == 'Y') {
+                                pthread_mutex_unlock(&lock);
+                                // Call overwrite function to handle the update
+                                overwrite_student_data(filename, &student);
+                                pthread_mutex_lock(&lock);
+                                data_ready = 1;
+                            } else {
+                                printf("Student data not added.\n");
+                                data_ready = 0; // Allow further actions
+                            }
+                        } else {
+                            // If student does not exist, directly add new student data
                             pthread_mutex_unlock(&lock);
-
-                            // Call overwrite function to handle the update
-                            overwrite_student_data(filename, &student);
-
-                            // Lock mutex again after updating
+                            FILE *file = fopen(filename, "a");
+                            if (file != NULL) {
+                                fprintf(file, "| %-8s | %-16s | %-10s | %-10s | %-13s | %-10s | %-10s |\n",
+                                        student.id, student.name, student.dob, student.hometown,
+                                        student.phone, student.major, student.class_t);
+                                fprintf(file, "+----------+------------------+------------+------------+---------------+------------+------------+\n");
+                                fclose(file);
+                            }
                             pthread_mutex_lock(&lock);
                             data_ready = 1;
-                        } else {
-                            printf("Student data not added.\n");
-                            // Reset data_ready to allow further actions
-                            data_ready = 0;
                         }
                     } else {
-                        // Unlock mutex before adding new student data
+                        // If file is empty, directly add new student data
                         pthread_mutex_unlock(&lock);
-
-                        // Add new student data
                         FILE *file = fopen(filename, "a");
                         if (file != NULL) {
                             fprintf(file, "| %-8s | %-16s | %-10s | %-10s | %-13s | %-10s | %-10s |\n",
@@ -97,8 +115,6 @@ void* thread1_func(void* arg) {
                             fprintf(file, "+----------+------------------+------------+------------+---------------+------------+------------+\n");
                             fclose(file);
                         }
-
-                        // Lock mutex again after adding
                         pthread_mutex_lock(&lock);
                         data_ready = 1;
                     }
@@ -107,8 +123,8 @@ void* thread1_func(void* arg) {
                 case 'd': {
                     char id[9];
                     printf("Enter student ID (MSSV) to delete: ");
-                    fgets(id, 9, stdin);
-                    id[strcspn(id, "\n")] = '\0';
+                    fgets(id, sizeof(id), stdin);
+                    id[strcspn(id, "\n")] = '\0'; // Remove newline character
                     delete_student_data(filename, id);
                     break;
                 }
@@ -116,8 +132,8 @@ void* thread1_func(void* arg) {
                     char id[9];
                     Student new_student;
                     printf("Enter student ID (MSSV) to update: ");
-                    fgets(id, 9, stdin);
-                    id[strcspn(id, "\n")] = '\0';
+                    fgets(id, sizeof(id), stdin);
+                    id[strcspn(id, "\n")] = '\0'; // Remove newline character
                     input_student_data(&new_student);
                     update_student_data(filename, id, &new_student);
                     break;
@@ -127,10 +143,10 @@ void* thread1_func(void* arg) {
                     char search_value[MAX_LEN];
                     printf("Enter search key (MSSV, NAME, DOB, HOMETOWN, PHONE, MAJOR, CLASS): ");
                     fgets(search_key, MAX_LEN, stdin);
-                    search_key[strcspn(search_key, "\n")] = '\0';
+                    search_key[strcspn(search_key, "\n")] = '\0'; // Remove newline character
                     printf("Enter search value: ");
                     fgets(search_value, MAX_LEN, stdin);
-                    search_value[strcspn(search_value, "\n")] = '\0';
+                    search_value[strcspn(search_value, "\n")] = '\0'; // Remove newline character
                     search_student_data(filename, search_key, search_value);
                     break;
                 }
@@ -154,7 +170,6 @@ void* thread1_func(void* arg) {
         pthread_mutex_unlock(&lock);
         sleep(1);
     }
-    free(role);
     return NULL;
 }
 

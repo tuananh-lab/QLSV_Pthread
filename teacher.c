@@ -29,6 +29,26 @@ void input_student_data(Student *student) {
     log_change("Added", student);
 }
 
+void check_and_create_file(const char *filename) {
+    FILE *file = fopen(filename, "r");
+    if (file == NULL) {
+        // File does not exist, so create it
+        file = fopen(filename, "w");
+        if (file == NULL) {
+            perror("Failed to create file");
+            exit(EXIT_FAILURE);
+        }
+
+        // Write header to the new file
+        fprintf(file, "+----------+------------------+------------+------------+---------------+------------+------------+\n");
+        fprintf(file, "| MSSV     | Ho ten           | Ngay sinh  | Que quan   | So dien thoai | Nganh hoc  | Lop        |\n");
+        fprintf(file, "+----------+------------------+------------+------------+---------------+------------+------------+\n");
+
+        fclose(file);
+    } else {
+        fclose(file);
+    }
+} 
 
 void write_student_to_file(Student *student, const char *filename) {
     // Check if student already exists in the file
@@ -42,14 +62,6 @@ void write_student_to_file(Student *student, const char *filename) {
     if (file == NULL) {
         perror("Failed to open file");
         return;
-    }
-
-    // Print table headers only if the file is empty
-    fseek(file, 0, SEEK_END);
-    if (ftell(file) == 0) {
-        fprintf(file, "+----------+------------------+------------+------------+---------------+------------+------------+\n");
-        fprintf(file, "|   MSSV   |     Ho ten       |  Ngay sinh |  Que quan  | So dien thoai | Nganh hoc  |    Lop     |\n");
-        fprintf(file, "+----------+------------------+------------+------------+---------------+------------+------------+\n");
     }
 
     // Write student data
@@ -236,4 +248,3 @@ void clear_file(const char *filename) {
     fclose(file);
     printf("The file %s has been cleared.\n", filename);
 }
-

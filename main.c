@@ -23,31 +23,56 @@ Student student;
 void login_and_run(pthread_t* thread) {
     char username[50];
     char password[50];
-    char role[10];
+    char role[2];
     int authenticated = 0;
 
     while (!authenticated) {
-        // Prompt for username and password
+        // Prompt for username
         printf("Enter username: ");
-        scanf("%49s", username);
-        printf("Enter password: ");
-        scanf("%49s", password);
-
-        // Authenticate user based on role
-        printf("Enter your role (student/teacher): ");
-        scanf("%9s", role);
-
-        if (strcmp(role, "student") == 0) {
-            authenticated = authenticate_student(username, password);
-        } else if (strcmp(role, "teacher") == 0) {
-            authenticated = authenticate_teacher(username, password);
-        } else {
-            printf("Invalid role. Please enter 'student' or 'teacher'.\n");
+        if (scanf("%49s", username) != 1 || strlen(username) == 0) {
+            fprintf(stderr, "Username cannot be empty. Please try again.\n");
+            // Clear input buffer
+            int c;
+            while ((c = getchar()) != '\n' && c != EOF);
             continue;
         }
 
-        if (!authenticated) {
-            printf("Invalid username or password. Please try again.\n");
+        // Prompt for password
+        printf("Enter password: ");
+        if (scanf("%49s", password) != 1 || strlen(password) == 0) {
+            fprintf(stderr, "Password cannot be empty. Please try again.\n");
+            // Clear input buffer
+            int c;
+            while ((c = getchar()) != '\n' && c != EOF);
+            continue;
+        }
+
+        // Prompt for role
+        printf("Enter your role (1 for student or 2 for teacher): ");
+        if (scanf("%1s", role) != 1 || (strlen(role) == 0)) {
+            fprintf(stderr, "Role cannot be empty. Please try again.\n");
+            // Clear input buffer
+            int c;
+            while ((c = getchar()) != '\n' && c != EOF);
+            continue;
+        }
+
+        // Validate and authenticate based on role
+        if (strcmp(role, "1") == 0) {
+            authenticated = authenticate_student(username, password);
+            if (!authenticated) {
+                printf("Invalid username or password for student. Please try again.\n");
+            }
+        } else if (strcmp(role, "2") == 0) {
+            authenticated = authenticate_teacher(username, password);
+            if (!authenticated) {
+                printf("Invalid username or password for teacher. Please try again.\n");
+            }
+        } else {
+            printf("Invalid role entered. Please enter 1 for 'student' or 2 for 'teacher'.\n");
+            // Clear role
+            role[0] = '\0';
+            continue;
         }
     }
 
@@ -55,7 +80,6 @@ void login_and_run(pthread_t* thread) {
     pthread_create(thread, NULL, thread1_func, (void*)strdup(role));
     pthread_join(*thread, NULL);
 }
-
 
 int main() {
     pthread_t thread1, thread2, thread3;
